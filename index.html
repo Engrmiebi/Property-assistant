@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Property Assistant | Real Estate</title>
+
+  <meta
+    name="description"
+    content="Your intelligent property assistant for property listings, survey status, pricing and reservations."
+  />
+
+  <!-- =======================================================
+       N8N CHAT WIDGET
+       ======================================================= -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =====================================================
+       BRAND VARIABLES
+       Change these to match your company's brand
+       ===================================================== */
+
+    :root {
+      --brand-primary: #123c69;
+      --brand-primary-dark: #0b2948;
+      --brand-secondary: #d6a84f;
+      --brand-light: #f5f7fa;
+      --brand-dark: #102033;
+      --brand-text: #4b5563;
+      --white: #ffffff;
+
+      /* n8n Chat colors */
+      --chat--color--primary: var(--brand-primary);
+      --chat--color--primary-shade-50: #0f345a;
+      --chat--color--primary--shade-100: var(--brand-primary-dark);
+
+      --chat--color--secondary: var(--brand-secondary);
+      --chat--color-secondary-shade-50: #bd913e;
+
+      --chat--color-white: #ffffff;
+      --chat--color-light: #f5f7fa;
+      --chat--color-light-shade-50: #e8edf3;
+      --chat--color-light-shade-100: #d7dee7;
+      --chat--color-medium: #c7ced8;
+      --chat--color-dark: #102033;
+      --chat--color-disabled: #c7ced8;
+      --chat--color-typing: #606b78;
+
+      /* Chat layout */
+      --chat--spacing: 1rem;
+      --chat--border-radius: 14px;
+
+      --chat--window--width: 400px;
+      --chat--window--height: 650px;
+      --chat--window--bottom: 24px;
+      --chat--window--right: 24px;
+      --chat--window--z-index: 9999;
+
+      /* Header */
+      --chat--header--background: var(--brand-primary);
+      --chat--header--color: var(--white);
+      --chat--header--padding: 1.4rem;
+      --chat--header-height: auto;
+
+      --chat--heading--font-size: 1.25rem;
+      --chat--subtitle--font-size: 0.85rem;
+      --chat--subtitle--line-height: 1.5;
+
+      /* Messages */
+      --chat--message--font-size: 0.95rem;
+      --chat--message--padding: 0.8rem 1rem;
+      --chat--message--border-radius: 12px;
+      --chat--message-line-height: 1.5;
+
+      --chat--message--bot--background: #ffffff;
+      --chat--message--bot--color: var(--brand-dark);
+      --chat--message--bot--border: 1px solid #e8edf3;
+
+      --chat--message--user--background: var(--brand-primary);
+      --chat--message--user--color: #ffffff;
+      --chat--message--user--border: none;
+
+      /* Toggle */
+      --chat--toggle--size: 62px;
+      --chat--toggle--width: 62px;
+      --chat--toggle--height: 62px;
+      --chat--toggle--border-radius: 50%;
+      --chat--toggle--background: var(--brand-primary);
+      --chat--toggle--hover--background: var(--brand-primary-dark);
+      --chat--toggle--active--background: var(--brand-primary-dark);
+      --chat--toggle--color: var(--white);
+
+      /* Input */
+      --chat--textarea--height: 52px;
+      --chat--textarea--max-height: 150px;
+      --chat--input--font-size: 0.95rem;
+      --chat--input--background: #ffffff;
+      --chat--input--text-color: var(--brand-dark);
+      --chat--input--padding: 0.85rem;
+
+      /* Buttons */
+      --chat--button--padding: 0.75rem 1rem;
+      --chat--button--border-radius: 10px;
+      --chat--button--font-size: 0.9rem;
+
+      --chat--button--color--primary: #ffffff;
+      --chat--button--background--primary: var(--brand-primary);
+    }
+
+    /* =====================================================
+       PAGE RESET
+       ===================================================== */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+      background: #f7f9fc;
+      color: var(--brand-dark);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* =====================================================
+       NAVIGATION
+       ===================================================== */
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid #edf0f4;
+
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-container {
+      max-width: 1180px;
+      margin: 0 auto;
+
+      min-height: 72px;
+      padding: 0 24px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 12px;
+      background: var(--brand-primary);
+      color: white;
+    }
+
+    .brand-icon svg {
+      width: 23px;
+      height: 23px;
+    }
+
+    .brand-name {
+      font-size: 1.05rem;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.7rem;
+      color: #7a8491;
+      margin-top: -2px;
+    }
+
+    .nav-link {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #5f6b78;
+    }
+
+    .nav-link:hover {
+      color: var(--brand-primary);
+    }
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          135deg,
+          #102f50 0%,
+          #163f67 50%,
+          #0f2a46 100%
+        );
+
+      color: #ffffff;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 500px;
+      height: 500px;
+
+      right: -180px;
+      top: -180px;
+
+      border-radius: 50%;
+      background: rgba(214, 168, 79, 0.1);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 350px;
+      height: 350px;
+
+      left: -150px;
+      bottom: -180px;
+
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .hero-container {
+      position: relative;
+      z-index: 2;
+
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 90px 24px 100px;
+
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 70px;
+      align-items: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 7px 12px;
+
+      border: 1px solid rgba(255, 255, 255, 0.17);
+      border-radius: 999px;
+
+      background: rgba(255, 255, 255, 0.07);
+
+      color: #e5ecf4;
+      font-size: 0.76rem;
+      font-weight: 600;
+
+      margin-bottom: 22px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #52d273;
+      box-shadow: 0 0 0 4px rgba(82, 210, 115, 0.12);
+    }
+
+    .hero h1 {
+      max-width: 720px;
+
+      font-size: clamp(2.5rem, 5vw, 4.4rem);
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+
+      margin-bottom: 24px;
+    }
+
+    .hero h1 span {
+      color: #e0bb71;
+    }
+
+    .hero-description {
+      max-width: 650px;
+
+      color: #d2dce7;
+      font-size: 1.07rem;
+
+      margin-bottom: 32px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .primary-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+
+      padding: 13px 20px;
+
+      background: var(--brand-secondary);
+      color: #142131;
+
+      border-radius: 10px;
+
+      font-weight: 750;
+      font-size: 0.92rem;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+    }
+
+    .secondary-button {
+      display: inline-flex;
+      align-items: center;
+
+      padding: 13px 20px;
+
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+
+      color: #ffffff;
+      font-weight: 650;
+      font-size: 0.92rem;
+
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* =====================================================
+       HERO VISUAL
+       ===================================================== */
+
+    .property-card {
+      position: relative;
+
+      padding: 26px;
+
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+
+      background: rgba(255, 255, 255, 0.07);
+
+      backdrop-filter: blur(14px);
+
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+    }
+
+    .property-card-label {
+      color: #c7d2df;
+      font-size: 0.75rem;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+
+    .property-card-title {
+      font-size: 1.35rem;
+      font-weight: 750;
+      margin-bottom: 7px;
+    }
+
+    .property-card-text {
+      color: #cbd6e1;
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+    }
+
+    .assistant-preview {
+      padding: 18px;
+
+      border-radius: 15px;
+      background: #ffffff;
+      color: var(--brand-dark);
+    }
+
+    .assistant-header {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+
+      margin-bottom: 18px;
+    }
+
+    .assistant-avatar {
+      width: 38px;
+      height: 38px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+      background: var(--brand-primary);
+      color: #ffffff;
+
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .assistant-name {
+      font-size: 0.86rem;
+      font-weight: 750;
+    }
+
+    .assistant-online {
+      color: #6b7785;
+      font-size: 0.7rem;
+    }
+
+    .preview-message {
+      background: #f1f4f8;
+      padding: 12px 14px;
+
+      border-radius: 12px;
+
+      font-size: 0.82rem;
+      color: #344153;
+
+      margin-bottom: 10px;
+    }
+
+    .preview-message.user {
+      background: var(--brand-primary);
+      color: #ffffff;
+
+      margin-left: 40px;
+    }
+
+    /* =====================================================
+       FEATURES
+       ===================================================== */
+
+    .section {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 78px 24px;
+    }
+
+    .section-header {
+      max-width: 700px;
+      margin-bottom: 40px;
+    }
+
+    .section-eyebrow {
+      color: var(--brand-secondary);
+      font-size: 0.74rem;
+      font-weight: 800;
+
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+
+      margin-bottom: 14px;
+    }
+
+    .section-description {
+      color: var(--brand-text);
+      font-size: 0.98rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: #ffffff;
+
+      border: 1px solid #e8edf3;
+      border-radius: 16px;
+
+      padding: 25px;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(20, 42, 65, 0.08);
+    }
+
+    .feature-icon {
+      width: 46px;
+      height: 46px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 12px;
+
+      background: #edf3f8;
+      color: var(--brand-primary);
+
+      margin-bottom: 18px;
+    }
+
+    .feature-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--brand-text);
+      font-size: 0.86rem;
+    }
+
+    /* =====================================================
+       CTA
+       ===================================================== */
+
+    .cta {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .cta-box {
+      position: relative;
+      overflow: hidden;
+
+      padding: 45px;
+
+      border-radius: 22px;
+      background: var(--brand-primary);
+      color: #ffffff;
+    }
+
+    .cta-box::after {
+      content: "";
+      position: absolute;
+
+      width: 280px;
+      height: 280px;
+
+      right: -100px;
+      top: -130px;
+
+      border-radius: 50%;
+      background: rgba(214, 168, 79, 0.13);
+    }
+
+    .cta-box h2 {
+      position: relative;
+      z-index: 2;
+
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      margin-bottom: 9px;
+    }
+
+    .cta-box p {
+      position: relative;
+      z-index: 2;
+
+      max-width: 650px;
+
+      color: #cfdae5;
+      font-size: 0.94rem;
+    }
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    footer {
+      border-top: 1px solid #e9edf2;
+      background: #ffffff;
+    }
+
+    .footer-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer-text {
+      color: #7b8794;
+      font-size: 0.78rem;
+    }
+
+    .footer-brand {
+      font-size: 0.85rem;
+      font-weight: 750;
+    }
+
+    /* =====================================================
+       MOBILE
+       ===================================================== */
+
+    @media (max-width: 850px) {
+
+      .hero-container {
+        grid-template-columns: 1fr;
+        gap: 45px;
+        padding-top: 65px;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .property-card {
+        max-width: 560px;
+      }
+    }
+
+    @media (max-width: 600px) {
+
+      .nav-link {
+        display: none;
+      }
+
+      .hero-container {
+        padding: 55px 18px 70px;
+      }
+
+      .section {
+        padding: 60px 18px;
+      }
+
+      .cta {
+        padding: 0 18px 60px;
+      }
+
+      .cta-box {
+        padding: 30px 24px;
+      }
+
+      .footer-container {
+        padding: 20px 18px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      /*
+       * Make the n8n chat window fit comfortably on mobile.
+       */
+      :root {
+        --chat--window--width: calc(100vw - 20px);
+        --chat--window--height: calc(100vh - 105px);
+        --chat--window--right: 10px;
+        --chat--window--bottom: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =====================================================
+       NAVIGATION
+       ===================================================== -->
+
+  <header class="navbar">
+    <div class="nav-container">
+
+      <a href="#" class="brand">
+
+        <div class="brand-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5.5 9.5V21h13V9.5" />
+            <path d="M9 21v-6h6v6" />
+          </svg>
+
+        </div>
+
+        <div>
+          <div class="brand-name">
+            Property Assistant
+          </div>
+
+          <div class="brand-subtitle">
+            Smart Real Estate Support
+          </div>
+        </div>
+
+      </a>
+
+      <a href="#features" class="nav-link">
+        What I can help with
+      </a>
+
+    </div>
+  </header>
+
+
+  <!-- =====================================================
+       HERO
+       ===================================================== -->
+
+  <main>
+
+    <section class="hero">
+
+      <div class="hero-container">
+
+        <div>
+
+          <div class="hero-badge">
+            <span class="status-dot"></span>
+            AI Property Assistant
+          </div>
+
+          <h1>
+            Your smarter way to
+            <span>find and manage property.</span>
+          </h1>
+
+          <p class="hero-description">
+            Get help finding available properties, checking survey
+            status, understanding pricing, and starting your plot
+            reservation — all through one intelligent assistant.
+          </p>
+
+          <div class="hero-actions">
+
+            <a
+              href="#chat"
+              class="primary-button"
+              onclick="openAssistant(event)"
+            >
+              Chat with our assistant
+              <span>→</span>
+            </a>
+
+            <a href="#features" class="secondary-button">
+              Explore services
+            </a>
+
+          </div>
+
+        </div>
+
+
+        <!-- Assistant preview -->
+
+        <div class="property-card">
+
+          <div class="property-card-label">
+            Live Property Assistant
+          </div>
+
+          <div class="property-card-title">
+            Ask. Verify. Reserve.
+          </div>
+
+          <div class="property-card-text">
+            Get instant assistance with your property journey.
+          </div>
+
+          <div class="assistant-preview">
+
+            <div class="assistant-header">
+
+              <div class="assistant-avatar">
+                PA
+              </div>
+
+              <div>
+                <div class="assistant-name">
+                  Property Assistant
+                </div>
+
+                <div class="assistant-online">
+                  Online now
+                </div>
+              </div>
+
+            </div>
+
+            <div class="preview-message">
+              Hello! How can I help you with your property search today?
+            </div>
+
+            <div class="preview-message user">
+              I want to check my survey status.
+            </div>
+
+            <div class="preview-message">
+              Absolutely. I'll help you check that. I'll need your
+              first name, last name and estate name.
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FEATURES
+         ===================================================== -->
+
+    <section class="section" id="features">
+
+      <div class="section-header">
+
+        <div class="section-eyebrow">
+          Property Support
+        </div>
+
+        <h2 class="section-title">
+          Everything you need in one conversation.
+        </h2>
+
+        <p class="section-description">
+          Our property assistant helps customers move from
+          questions to decisions without unnecessary back-and-forth.
+        </p>
+
+      </div>
+
+
+      <div class="feature-grid">
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-4-4"></path>
+            </svg>
+
+          </div>
+
+          <h3>
+            Find Properties
+          </h3>
+
+          <p>
+            Search available properties and get relevant
+            information from the property catalogue.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M12 3v18"></path>
+              <path d="M17 7.5c0-1.7-2.2-3-5-3s-5 1.3-5 3 2.2 3 5 3 5 1.3 5 3-2.2 3-5 3-5-1.3-5-3"></path>
+            </svg>
+
+          </div>
+
+          <h3>
+            Pricing & Calculations
+          </h3>
+
+          <p>
+            Get accurate pricing calculations, payment breakdowns
+            and property purchase estimates.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M4 4h16v16H4z"></path>
+              <path d="M8 8h8"></path>
+              <path d="M8 12h5"></path>
+              <path d="M8 16h6"></path>
+            </svg>
+
+          </div>
+
+          <h3>
+            Survey Status
+          </h3>
+
+          <p>
+            Check whether your survey has been produced and
+            recorded in the estate development records.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M3 10.5 12 4l9 6.5"></path>
+              <path d="M5 10v9h14v-9"></path>
+              <path d="M9 19v-5h6v5"></path>
+            </svg>
+
+          </div>
+
+          <h3>
+            Plot Reservations
+          </h3>
+
+          <p>
+            Start the reservation process directly in the chat
+            once you have selected your preferred property.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M4 5h16v14H4z"></path>
+              <path d="M8 9h8"></path>
+              <path d="M8 13h5"></path>
+            </svg>
+
+          </div>
+
+          <h3>
+            Property Information
+          </h3>
+
+          <p>
+            Ask questions about properties using the information
+            available in your property catalogue.
+          </p>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M12 2a9 9 0 1 0 9 9"></path>
+              <path d="M12 6v6l4 2"></path>
+              <path d="M16 3h5v5"></path>
+            </svg>
+
+          </div>
+
+          <h3>
+            Always Available
+          </h3>
+
+          <p>
+            Get assistance whenever you need it without waiting
+            for a property representative to respond.
+          </p>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         CTA
+         ===================================================== -->
+
+    <section class="cta">
+
+      <div class="cta-box">
+
+        <h2>
+          Ready to start your property journey?
+        </h2>
+
+        <p>
+          Open the assistant and tell us what you need.
+          We can help you search, calculate, verify and reserve.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       FOOTER
+       ===================================================== -->
+
+  <footer>
+
+    <div class="footer-container">
+
+      <div class="footer-brand">
+        Property Assistant
+      </div>
+
+      <div class="footer-text">
+        Intelligent assistance for your real estate journey.
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =====================================================
+       N8N CHAT
+       ===================================================== -->
+
+  <div id="n8n-chat"></div>
+
+  <script type="module">
+
+    import { createChat } from
+      'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+    /*
+     * ======================================================
+     * IMPORTANT
+     * ======================================================
+     *
+     * Replace this URL with the PRODUCTION URL shown inside
+     * your n8n "When chat message received" Chat Trigger.
+     *
+     * Example:
+     *
+     * https://your-workspace.app.n8n.cloud/webhook/xxxxxxxx
+     *
+     * DO NOT use /webhook-test/ for your live website.
+     */
+
+    const N8N_CHAT_WEBHOOK =
+      'https://livecom.app.n8n.cloud/webhook/0cda95f2-da83-4653-91c3-21ba58b32185/chat';
+
+
+    /*
+     * ======================================================
+     * CREATE CHAT
+     * ======================================================
+     */
+
+    createChat({
+
+      webhookUrl: N8N_CHAT_WEBHOOK,
+
+      target: '#n8n-chat',
+
+      mode: 'window',
+
+      /*
+       * Keep these names because your main n8n Chat Trigger
+       * and AI workflow use chatInput/sessionId.
+       */
+
+      chatInputKey: 'chatInput',
+
+      chatSessionKey: 'sessionId',
+
+      /*
+       * Keep conversation history.
+       */
+
+      loadPreviousSession: true,
+
+      /*
+       * Welcome screen.
+       */
+
+      showWelcomeScreen: true,
+
+      /*
+       * Initial messages shown when the user opens the chat.
+       */
+
+      initialMessages: [
+        'Hello! 👋',
+        'Welcome to our Property Assistant.',
+        'I can help you find properties, check survey status, understand pricing and start a plot reservation.'
+      ],
+
+      /*
+       * Interface language and text.
+       */
+
+      defaultLanguage: 'en',
+
+      i18n: {
+        en: {
+
+          title: 'Property Assistant',
+
+          subtitle:
+            'Your smart real estate assistant',
+
+          footer:
+            'Powered by our intelligent property platform',
+
+          getStarted:
+            'Start a conversation',
+
+          inputPlaceholder:
+            'Ask about a property, survey or reservation...'
+
+        }
+      }
+
+    });
+
+
+    /*
+     * ======================================================
+     * OPEN ASSISTANT FROM HERO BUTTON
+     * ======================================================
+     */
+
+    window.openAssistant = function(event) {
+
+      event.preventDefault();
+
+      /*
+       * The n8n widget creates its own toggle button.
+       * Find it and trigger it programmatically.
+       */
+
+      const toggleButton =
+        document.querySelector(
+          '#n8n-chat button'
+        );
+
+      if (toggleButton) {
+        toggleButton.click();
+      }
+
+    };
+
+  </script>
+
+</body>
+</html>
