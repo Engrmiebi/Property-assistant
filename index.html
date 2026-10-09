@@ -1018,104 +1018,103 @@
 
 
     // =====================================================
-    // 3. OPEN THE CHAT FROM BOTH WEBSITE BUTTONS
+    // OPEN CHAT FROM THE WEBSITE BUTTONS
     // =====================================================
-    // The previous implementation checked whether the chat window
-    // looked visible before clicking the toggle. The n8n widget can
-    // keep the window element in the DOM while it is closed, so that
-    // check could incorrectly stop the function before it clicked.
-    // This version waits for the real n8n toggle, then clicks it.
+    // The official @n8n/chat widget uses .chat-window-toggle.
+    // The previous version looked only for n8n-chat-widget-toggle,
+    // which may not exist in the official widget DOM.
 
-    let openChatTimer = null;
+    function getChatToggle() {
+      const selectors = [
+        '#n8n-chat .chat-window-toggle',
+        '.chat-window-toggle',
+        '#n8n-chat .chat-window__toggle',
+        '.chat-window__toggle',
+        '#n8n-chat .n8n-chat-widget-toggle',
+        '.n8n-chat-widget-toggle',
+        '#n8n-chat .n8n-chat-widget__toggle',
+        '.n8n-chat-widget__toggle'
+      ];
 
-    function getN8nChatToggle() {
-      // This is the toggle class used by the n8n Chat window widget.
-      return document.querySelector('.n8n-chat-widget-toggle') ||
-        document.querySelector('#n8n-chat .n8n-chat-widget__toggle') ||
-        document.querySelector('.n8n-chat-widget__toggle');
+      for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (element) return element;
+      }
+
+      return null;
     }
 
-    function widgetAlreadyOpen(toggle) {
-      if (!toggle) return false;
+    function isElementVisible(element) {
+      if (!element) return false;
 
-      // Only trust explicit open-state attributes/labels.
-      // Do not infer the state from the panel's visibility: some n8n
-      // widget versions keep the panel element mounted while closed.
-      if (toggle.getAttribute('aria-expanded') === 'true') return true;
-      if (toggle.getAttribute('aria-pressed') === 'true') return true;
+      const style = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
 
-      const label = [
-        toggle.getAttribute('aria-label'),
-        toggle.getAttribute('title')
-      ].filter(Boolean).join(' ').toLowerCase();
+      return style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        Number(style.opacity) > 0 &&
+        rect.width > 0 &&
+        rect.height > 0;
+    }
 
-      return label.includes('close chat') || label.includes('hide chat');
+    function isChatPanelOpen() {
+      const panelSelectors = [
+        '#n8n-chat .chat-window',
+        '.chat-window',
+        '#n8n-chat .n8n-chat-widget-window',
+        '.n8n-chat-widget-window'
+      ];
+
+      for (const selector of panelSelectors) {
+        const panel = document.querySelector(selector);
+        if (isElementVisible(panel)) return true;
+      }
+
+      return false;
     }
 
     window.openAssistantChat = function (event) {
       if (event) event.preventDefault();
 
-      // Avoid starting multiple retry loops from repeated clicks.
-      if (openChatTimer) {
-        window.clearInterval(openChatTimer);
-        openChatTimer = null;
-      }
+      // If it is already open, leave it open instead of toggling it closed.
+      if (isChatPanelOpen()) return;
 
       let attempts = 0;
-      const maxAttempts = 30;
+      const maxAttempts = 25;
 
-      function attemptToOpen() {
-        const toggle = getN8nChatToggle();
-
-        if (!toggle) return false;
-
-        // Do not close the chat if it is already open.
-        if (widgetAlreadyOpen(toggle)) return true;
-
-        toggle.click();
-        return true;
-      }
-
-      // Attempt immediately in case the widget is already mounted.
-      if (attemptToOpen()) return;
-
-      // If the widget is still rendering, retry for up to six seconds.
-      openChatTimer = window.setInterval(() => {
+      const tryOpen = () => {
         attempts += 1;
 
-        if (attemptToOpen()) {
-          window.clearInterval(openChatTimer);
-          openChatTimer = null;
+        if (isChatPanelOpen()) {
+          window.clearInterval(timer);
+          return;
+        }
+
+        const toggle = getChatToggle();
+
+        if (toggle) {
+          window.clearInterval(timer);
+          toggle.click();
           return;
         }
 
         if (attempts >= maxAttempts) {
-          window.clearInterval(openChatTimer);
-          openChatTimer = null;
-
+          window.clearInterval(timer);
           console.error(
-            'Unable to find the n8n chat toggle. Check whether the widget initialized.',
-            {
-              n8nChatContainer: Boolean(document.querySelector('#n8n-chat')),
-              widgetToggleFound: Boolean(getN8nChatToggle()),
-              buttonsInsideChat: Array.from(document.querySelectorAll('#n8n-chat button')).map(button => ({
-                className: String(button.className),
-                ariaLabel: button.getAttribute('aria-label'),
-                title: button.getAttribute('title')
-              }))
-            }
+            'Could not find the n8n chat toggle. Buttons currently rendered inside #n8n-chat:',
+            Array.from(document.querySelectorAll('#n8n-chat button')).map(button => ({
+              text: (button.innerText || '').trim(),
+              className: typeof button.className === 'string' ? button.className : '',
+              ariaLabel: button.getAttribute('aria-label'),
+              title: button.getAttribute('title')
+            }))
           );
         }
-      }, 200);
+      };
+
+      const timer = window.setInterval(tryOpen, 200);
+      tryOpen();
     };
-
-    // Attach handlers after the page markup and n8n module are ready.
-    document.querySelectorAll('[data-open-chat]').forEach(button => {
-      button.addEventListener('click', window.openAssistantChat);
-    });
-
-    // Handy console test: openAssistantChat()
-
   </script>
 
 </body>
