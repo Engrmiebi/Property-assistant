@@ -1231,25 +1231,54 @@
      * ======================================================
      */
 
-    window.openAssistant = function(event) {
-
+    
+<script>
+  window.openAssistant = function (event) {
+    if (event) {
       event.preventDefault();
+    }
 
-      /*
-       * The n8n widget creates its own toggle button.
-       * Find it and trigger it programmatically.
-       */
+    let attempts = 0;
+    const maxAttempts = 20;
 
+    function openChat() {
+      // Target the actual n8n chat toggle, not just any button.
       const toggleButton =
-        document.querySelector(
-          '#n8n-chat button'
-        );
+        document.querySelector('#n8n-chat .n8n-chat-widget-toggle') ||
+        document.querySelector('.n8n-chat-widget-toggle');
 
-      if (toggleButton) {
-        toggleButton.click();
+      if (!toggleButton) {
+        return false;
       }
 
-    };
+      // Open the chat widget.
+      toggleButton.click();
+      return true;
+    }
+
+    // Try immediately.
+    if (openChat()) {
+      return;
+    }
+
+    // If the widget has not finished loading, retry briefly.
+    const retryTimer = window.setInterval(() => {
+      attempts++;
+
+      const opened = openChat();
+
+      if (opened || attempts >= maxAttempts) {
+        window.clearInterval(retryTimer);
+
+        if (!opened) {
+          console.error(
+            'Chat widget toggle was not found. Check that n8n chat has loaded.'
+          );
+        }
+      }
+    }, 150);
+  };
+</script>
 
   </script>
 
